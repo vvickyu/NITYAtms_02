@@ -172,6 +172,10 @@ tr:hover td{background:rgba(255,255,255,0.015);}
 .btn-files{background:rgba(168,85,247,0.1);color:var(--purple);border:1px solid rgba(168,85,247,0.3);}
 .btn-files:hover{background:rgba(168,85,247,0.2);}
 .has-files-dot{display:inline-block;width:6px;height:6px;background:var(--green);border-radius:50%;margin-left:4px;vertical-align:middle;}
+.nx-card-blue{border-left:3px solid var(--accent);}
+.nx-card-coord{border-left:3px solid var(--coord);}
+.set-msg-ok{color:var(--green);}
+.set-msg-err{color:var(--red);}
 
 /* PROJECT DETAIL */
 .detail-wrap{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;}
@@ -287,6 +291,7 @@ tr:hover td{background:rgba(255,255,255,0.015);}
       <button class="tab-btn" onclick="adminTab('outsource')"><i class="fas fa-arrow-up-right-from-square"></i> Outsource</button>
       <button class="tab-btn" onclick="adminTab('salary')"><i class="fas fa-file-invoice-dollar"></i> Salary</button>
       <button class="tab-btn" onclick="adminTab('payments')"><i class="fas fa-hand-holding-dollar"></i> Outsource Payment</button>
+      <button class="tab-btn" onclick="adminTab('settings')"><i class="fas fa-gear"></i> Settings</button>
     </div>
 
     <!-- PROJECTS LIST -->
@@ -399,7 +404,8 @@ tr:hover td{background:rgba(255,255,255,0.015);}
       <div id="salary-report"></div>
     </div>
 
-    <!-- PAYMENTS (outsource vendor payments) -->
+    <!-- OUTSOURCE PAYMENT -->
+    
     <div id="atab-payments" class="hidden">
       <div class="stats-row" id="payments-stats-row"></div>
       <div class="card" style="margin-bottom:20px;">
@@ -421,6 +427,80 @@ tr:hover td{background:rgba(255,255,255,0.015);}
         <div id="pay-msg" class="hidden" style="margin-top:10px;font-size:12px;color:var(--green);font-weight:700;"><i class="fas fa-check-circle"></i> Payment recorded!</div>
       </div>
       <div id="payments-vendor-blocks"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="atab-settings" class="hidden">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:900px;">
+
+        <!-- Admin password -->
+        <div class="card nx-card-blue">
+          <div style="font-size:13px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+            <i class="fas fa-shield-halved" style="color:var(--accent)"></i> Admin Password
+          </div>
+          <div class="field"><label>Current Password</label>
+            <input type="password" id="set-admin-cur" placeholder="Enter current password" autocomplete="off">
+          </div>
+          <div class="field"><label>New Password</label>
+            <input type="password" id="set-admin-new" placeholder="New password">
+          </div>
+          <div class="field" style="margin-bottom:12px;"><label>Confirm New Password</label>
+            <input type="password" id="set-admin-con" placeholder="Repeat new password">
+          </div>
+          <div id="set-admin-msg" class="hidden" style="font-size:12px;font-weight:700;margin-bottom:10px;"></div>
+          <button class="btn btn-accent" onclick="changeAdminPw()"><i class="fas fa-key"></i> Update Admin Password</button>
+        </div>
+
+        <!-- Coordinator password -->
+        <div class="card nx-card-coord">
+          <div style="font-size:13px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+            <i class="fas fa-people-arrows" style="color:var(--coord)"></i> Coordinator Password
+          </div>
+          <div class="field"><label>Current Password</label>
+            <input type="password" id="set-coord-cur" placeholder="Enter current password" autocomplete="off">
+          </div>
+          <div class="field"><label>New Password</label>
+            <input type="password" id="set-coord-new" placeholder="New password">
+          </div>
+          <div class="field" style="margin-bottom:12px;"><label>Confirm New Password</label>
+            <input type="password" id="set-coord-con" placeholder="Repeat new password">
+          </div>
+          <div id="set-coord-msg" class="hidden" style="font-size:12px;font-weight:700;margin-bottom:10px;"></div>
+          <button class="btn btn-ghost" style="border-color:var(--coord);color:var(--coord);" onclick="changeCoordPw()"><i class="fas fa-key"></i> Update Coordinator Password</button>
+        </div>
+      </div>
+
+      <!-- Artist passwords -->
+      <div class="card" style="margin-top:20px;max-width:900px;">
+        <div style="font-size:13px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+          <i class="fas fa-users" style="color:var(--green)"></i> Artist Passwords
+          <span style="font-size:11px;font-weight:400;color:var(--muted);">Set new password for any artist</span>
+        </div>
+        <div id="settings-artist-list"></div>
+      </div>
+
+      <!-- Admin username -->
+      <div class="card" style="margin-top:20px;max-width:900px;">
+        <div style="font-size:13px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+          <i class="fas fa-user-pen" style="color:var(--yellow)"></i> Change Usernames
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div>
+            <div style="font-size:11px;color:var(--muted);font-weight:700;margin-bottom:8px;">Admin Username</div>
+            <div style="display:flex;gap:8px;">
+              <input type="text" id="set-admin-uname" placeholder="New username" style="flex:1;padding:9px 12px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:var(--font);font-size:13px;">
+              <button class="btn btn-ghost btn-sm" onclick="changeAdminUsername()"><i class="fas fa-save"></i></button>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--muted);font-weight:700;margin-bottom:8px;">Coordinator Username</div>
+            <div style="display:flex;gap:8px;">
+              <input type="text" id="set-coord-uname" placeholder="New username" style="flex:1;padding:9px 12px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:var(--font);font-size:13px;">
+              <button class="btn btn-ghost btn-sm" onclick="changeCoordUsername()"><i class="fas fa-save"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- INVOICE GENERATOR -->
@@ -474,6 +554,7 @@ tr:hover td{background:rgba(255,255,255,0.015);}
       <button class="tab-btn" onclick="coordTab('shots')"><i class="fas fa-film"></i> All Shots</button>
       <button class="tab-btn" onclick="coordTab('timelogs')"><i class="fas fa-clock"></i> Time Logs</button>
       <button class="tab-btn" onclick="coordTab('hours')"><i class="fas fa-chart-bar"></i> Team Hours</button>
+      <button class="tab-btn" onclick="coordTab('settings')"><i class="fas fa-gear"></i> Settings</button>
     </div>
 
     <!-- COORD PROJECTS LIST -->
@@ -559,10 +640,30 @@ tr:hover td{background:rgba(255,255,255,0.015);}
       </div>
       <div id="hours-report"></div>
     </div>
+
+    <!-- COORD SETTINGS -->
+    <div id="ctab-settings" class="hidden">
+      <div class="card" style="max-width:500px;">
+        <div style="font-size:13px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+          <i class="fas fa-key" style="color:var(--coord)"></i> Change My Password
+        </div>
+        <div class="field"><label>Current Password</label>
+          <input type="password" id="coord-set-cur" placeholder="Enter current password" autocomplete="off">
+        </div>
+        <div class="field"><label>New Password</label>
+          <input type="password" id="coord-set-new" placeholder="New password">
+        </div>
+        <div class="field" style="margin-bottom:12px;"><label>Confirm New Password</label>
+          <input type="password" id="coord-set-con" placeholder="Repeat new password">
+        </div>
+        <div id="coord-set-msg" class="hidden" style="font-size:12px;font-weight:700;margin-bottom:10px;"></div>
+        <button class="btn btn-ghost" style="border-color:var(--coord);color:var(--coord);" onclick="changeCoordOwnPw()">
+          <i class="fas fa-save"></i> Update Password
+        </button>
+      </div>
+    </div>
   </div>
 </div>
-
-<!-- ARTIST -->
 <div id="sec-artist" class="section">
   <div class="page">
     <div class="portal-header artist-hdr">
@@ -596,6 +697,20 @@ tr:hover td{background:rgba(255,255,255,0.015);}
       <div>
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:10px;">Today's Log</div>
         <div class="card" id="today-log-box" style="padding:16px;"><div style="text-align:center;color:var(--muted);font-size:13px;padding:16px 0;">No sessions yet today.</div></div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin:18px 0 10px;"><i class="fas fa-key"></i> Change My Password</div>
+        <div class="card" style="padding:16px;">
+          <div class="field" style="margin-bottom:10px;"><label>Current Password</label>
+            <input type="password" id="artist-pw-cur" placeholder="Current password" autocomplete="off">
+          </div>
+          <div class="field" style="margin-bottom:10px;"><label>New Password</label>
+            <input type="password" id="artist-pw-new" placeholder="New password">
+          </div>
+          <div class="field" style="margin-bottom:12px;"><label>Confirm New Password</label>
+            <input type="password" id="artist-pw-con" placeholder="Repeat new password">
+          </div>
+          <div id="artist-pw-msg" class="hidden" style="font-size:12px;font-weight:700;margin-bottom:10px;"></div>
+          <button class="btn btn-green" style="width:100%;" onclick="changeArtistOwnPw()"><i class="fas fa-save"></i> Update Password</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1001,7 +1116,7 @@ function populateAllDropdowns(){
 // ══════════════════════════════════════
 // ADMIN TABS
 // ══════════════════════════════════════
-var ADMIN_TABS=['projects','artists','shots','timelogs','outsource','salary','payments'];
+var ADMIN_TABS=['projects','artists','shots','timelogs','outsource','salary','payments','settings'];
 function adminTab(name){
   ADMIN_TABS.forEach(function(t){var el=document.getElementById('atab-'+t);if(el)el.classList.toggle('hidden',t!==name);});
   document.getElementById('atab-projdetail').classList.add('hidden');
@@ -1012,6 +1127,7 @@ function adminTab(name){
   if(name==='outsource'){populateAllDropdowns();renderOutsourceTable();renderOutsourceStats();}
   if(name==='projects'){renderProjectsGrid('admin');}
   if(name==='payments'){renderPaymentsTab();}
+  if(name==='settings'){renderAdminSettingsTab();}
 }
 function renderAdminStats(){
   var todayMs=DB.artists.reduce(function(s,a){return s+getDayTotalMs(a.id,today());},0);
@@ -2143,7 +2259,7 @@ function populateInvoiceProjects(){
 // ══════════════════════════════════════
 // COORDINATOR TABS
 // ══════════════════════════════════════
-var COORD_TABS=['projects','artists','shots','timelogs','hours'];
+var COORD_TABS=['projects','artists','shots','timelogs','hours','settings'];
 function coordTab(name){
   COORD_TABS.forEach(function(t){var el=document.getElementById('ctab-'+t);if(el)el.classList.toggle('hidden',t!==name);});
   document.getElementById('ctab-projdetail').classList.add('hidden');
@@ -2677,6 +2793,187 @@ function openModal(id){
 function closeModal(id){document.getElementById(id).classList.add('hidden');}
 document.querySelectorAll('.modal-bg').forEach(function(bg){bg.addEventListener('click',function(e){if(e.target===bg)bg.classList.add('hidden');});});
 
+
+// ══════════════════════════════════════
+// SETTINGS & PASSWORD CHANGE
+// ══════════════════════════════════════
+
+// Stored credentials (separate from DB so they persist independently)
+var CREDS_KEY = 'nitya_vfx_creds_v1';
+function getCreds(){
+  try{ var c=localStorage.getItem(CREDS_KEY); return c?JSON.parse(c):{admin:{u:'admin',p:'admin'},coord:{u:'coord',p:'coord'}}; }
+  catch(e){ return {admin:{u:'admin',p:'admin'},coord:{u:'coord',p:'coord'}}; }
+}
+function saveCreds(c){ try{ localStorage.setItem(CREDS_KEY,JSON.stringify(c)); }catch(e){} }
+
+// Override login checks to use stored creds
+var _origAdminLogin = doAdminLogin;
+doAdminLogin = function(){
+  var u=document.getElementById('admin-u').value.trim();
+  var p=document.getElementById('admin-p').value;
+  var c=getCreds();
+  if(u===c.admin.u && p===c.admin.p){ currentUser='admin'; showSection('admin'); }
+  else showLoginErr('Incorrect credentials.');
+};
+var _origCoordLogin = doCoordLogin;
+doCoordLogin = function(){
+  var u=document.getElementById('coord-u').value.trim();
+  var p=document.getElementById('coord-p').value;
+  var c=getCreds();
+  if(u===c.coord.u && p===c.coord.p){ currentUser='coord'; showSection('coord'); }
+  else showLoginErr('Incorrect credentials.');
+};
+var _origArtistLogin = doArtistLogin;
+doArtistLogin = function(){
+  var id=parseInt(document.getElementById('artist-sel').value);
+  var pw=document.getElementById('artist-p').value;
+  if(!id){ showLoginErr('Please select your name.'); return; }
+  var a=getArtist(id);
+  if(!a){ showLoginErr('Artist not found.'); return; }
+  if(a.password && pw!==a.password){ showLoginErr('Incorrect password.'); return; }
+  currentUser=a; timerElapsed=0; currentShotId=null;
+  document.getElementById('artist-p').value='';
+  showSection('artist');
+};
+
+function showSetMsg(elId, msg, ok){
+  var el=document.getElementById(elId);
+  if(!el) return;
+  el.textContent=msg;
+  el.className=(ok?'set-msg-ok':'set-msg-err');
+  el.classList.remove('hidden');
+  setTimeout(function(){ el.classList.add('hidden'); }, 3500);
+}
+
+// ── Admin password change ──
+function changeAdminPw(){
+  var cur=document.getElementById('set-admin-cur').value;
+  var nw=document.getElementById('set-admin-new').value;
+  var con=document.getElementById('set-admin-con').value;
+  var c=getCreds();
+  if(cur!==c.admin.p){ showSetMsg('set-admin-msg','❌ Current password is wrong.',false); return; }
+  if(!nw){ showSetMsg('set-admin-msg','❌ New password cannot be empty.',false); return; }
+  if(nw!==con){ showSetMsg('set-admin-msg','❌ Passwords do not match.',false); return; }
+  c.admin.p=nw;
+  saveCreds(c);
+  document.getElementById('set-admin-cur').value='';
+  document.getElementById('set-admin-new').value='';
+  document.getElementById('set-admin-con').value='';
+  showSetMsg('set-admin-msg','✅ Admin password updated!',true);
+}
+
+// ── Admin username change ──
+function changeAdminUsername(){
+  var u=(document.getElementById('set-admin-uname').value||'').trim();
+  if(!u){ alert('Username cannot be empty.'); return; }
+  var c=getCreds(); c.admin.u=u; saveCreds(c);
+  document.getElementById('set-admin-uname').value='';
+  alert('✅ Admin username changed to "'+u+'"');
+}
+
+// ── Coord password change (from admin settings) ──
+function changeCoordPw(){
+  var cur=document.getElementById('set-coord-cur').value;
+  var nw=document.getElementById('set-coord-new').value;
+  var con=document.getElementById('set-coord-con').value;
+  var c=getCreds();
+  if(cur!==c.coord.p){ showSetMsg('set-coord-msg','❌ Current password is wrong.',false); return; }
+  if(!nw){ showSetMsg('set-coord-msg','❌ New password cannot be empty.',false); return; }
+  if(nw!==con){ showSetMsg('set-coord-msg','❌ Passwords do not match.',false); return; }
+  c.coord.p=nw;
+  saveCreds(c);
+  document.getElementById('set-coord-cur').value='';
+  document.getElementById('set-coord-new').value='';
+  document.getElementById('set-coord-con').value='';
+  showSetMsg('set-coord-msg','✅ Coordinator password updated!',true);
+}
+
+// ── Coord username change ──
+function changeCoordUsername(){
+  var u=(document.getElementById('set-coord-uname').value||'').trim();
+  if(!u){ alert('Username cannot be empty.'); return; }
+  var c=getCreds(); c.coord.u=u; saveCreds(c);
+  document.getElementById('set-coord-uname').value='';
+  alert('✅ Coordinator username changed to "'+u+'"');
+}
+
+// ── Coord own password change (from coord portal) ──
+function changeCoordOwnPw(){
+  var cur=document.getElementById('coord-set-cur').value;
+  var nw=document.getElementById('coord-set-new').value;
+  var con=document.getElementById('coord-set-con').value;
+  var c=getCreds();
+  if(cur!==c.coord.p){ showSetMsg('coord-set-msg','❌ Current password is wrong.',false); return; }
+  if(!nw){ showSetMsg('coord-set-msg','❌ New password cannot be empty.',false); return; }
+  if(nw!==con){ showSetMsg('coord-set-msg','❌ Passwords do not match.',false); return; }
+  c.coord.p=nw; saveCreds(c);
+  document.getElementById('coord-set-cur').value='';
+  document.getElementById('coord-set-new').value='';
+  document.getElementById('coord-set-con').value='';
+  showSetMsg('coord-set-msg','✅ Password updated!',true);
+}
+
+// ── Artist own password change ──
+function changeArtistOwnPw(){
+  if(!currentUser||currentUser==='admin'||currentUser==='coord') return;
+  var cur=document.getElementById('artist-pw-cur').value;
+  var nw=document.getElementById('artist-pw-new').value;
+  var con=document.getElementById('artist-pw-con').value;
+  if(cur!==currentUser.password){ showSetMsg('artist-pw-msg','❌ Current password is wrong.',false); return; }
+  if(!nw){ showSetMsg('artist-pw-msg','❌ New password cannot be empty.',false); return; }
+  if(nw!==con){ showSetMsg('artist-pw-msg','❌ Passwords do not match.',false); return; }
+  currentUser.password=nw;
+  var a=getArtist(currentUser.id);
+  if(a) a.password=nw;
+  document.getElementById('artist-pw-cur').value='';
+  document.getElementById('artist-pw-new').value='';
+  document.getElementById('artist-pw-con').value='';
+  showSetMsg('artist-pw-msg','✅ Password updated!',true);
+  schedPersist();
+}
+
+// ── Admin sets artist password ──
+function submitArtistPwReset(aid){
+  var nw=(document.getElementById('artist-pw-reset-'+aid)||{}).value||'';
+  var con=(document.getElementById('artist-pw-rcon-'+aid)||{}).value||'';
+  if(!nw){ alert('New password cannot be empty.'); return; }
+  if(nw!==con){ alert('Passwords do not match.'); return; }
+  var a=getArtist(aid);
+  if(!a) return;
+  a.password=nw;
+  document.getElementById('artist-pw-reset-'+aid).value='';
+  document.getElementById('artist-pw-rcon-'+aid).value='';
+  var msgEl=document.getElementById('artist-pw-msg-'+aid);
+  if(msgEl){ msgEl.textContent='✅ Password updated for '+a.name; msgEl.className='set-msg-ok'; msgEl.classList.remove('hidden'); setTimeout(function(){msgEl.classList.add('hidden');},3000); }
+  schedPersist();
+}
+
+// ── Render admin settings tab ──
+function renderAdminSettingsTab(){
+  var c=getCreds();
+  // Pre-fill username hints
+  var uel=document.getElementById('set-admin-uname');
+  if(uel) uel.placeholder='Current: '+c.admin.u;
+  var cel=document.getElementById('set-coord-uname');
+  if(cel) cel.placeholder='Current: '+c.coord.u;
+
+  // Render artist list
+  var el=document.getElementById('settings-artist-list');
+  if(!el) return;
+  if(!DB.artists.length){ el.innerHTML='<div style="color:var(--muted);font-size:13px;">No artists yet.</div>'; return; }
+  el.innerHTML=DB.artists.map(function(a){
+    return '<div style="display:grid;grid-template-columns:auto 1fr 1fr auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);">'
+      +'<div style="width:36px;height:36px;border-radius:10px;background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.2);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--green);font-size:14px;">'+a.name.charAt(0)+'</div>'
+      +'<div><div style="font-weight:700;font-size:13px;">'+a.name+'</div><div style="font-size:11px;color:var(--muted);">'+a.role+'</div></div>'
+      +'<div style="display:flex;flex-direction:column;gap:6px;">'
+        +'<input type="password" id="artist-pw-reset-'+a.id+'" placeholder="New password" style="padding:7px 10px;background:var(--surface);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--font);font-size:12px;width:100%;">'
+        +'<input type="password" id="artist-pw-rcon-'+a.id+'" placeholder="Confirm password" style="padding:7px 10px;background:var(--surface);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--font);font-size:12px;width:100%;">'
+        +'<div id="artist-pw-msg-'+a.id+'" class="hidden" style="font-size:11px;font-weight:700;"></div>'
+      +'</div>'
+      +'<button class="btn btn-green btn-sm" onclick="submitArtistPwReset('+a.id+')"><i class="fas fa-key"></i> Set</button>'
+      +'</div>';
+  }).join('');
+}
 
 // ══════════════════════════════════════
 // PERSISTENCE — localStorage auto-save
