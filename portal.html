@@ -2914,7 +2914,6 @@ function renderDashSummaryStats(){
     {lbl:'In Review', val:reviewShots, c:'yellow'},
     {lbl:'Completed', val:doneShots, c:'green'},
     {lbl:'With Feedback', val:withFeedback, c:'red'},
-    {lbl:'Hours Logged', val:msToHM(totalMs), c:'coord'},
   ].map(function(s){
     return '<div class="stat-box"><div class="lbl">'+s.lbl+'</div><div class="val '+s.c+'" style="font-size:20px;">'+s.val+'</div></div>';
   }).join('');
@@ -2944,13 +2943,10 @@ function renderDashProjectsGrid(){
   el.innerHTML = '<div class="projects-grid">' + projects.map(function(p){
     var prog = getProjectShotsDone(p.id);
     var pct = prog.total > 0 ? Math.round(prog.done/prog.total*100) : 0;
-    var totalMs = getProjectTotalMs(p.id);
     var shots = DB.shots.filter(function(s){return s.projectId===p.id;});
     var inProg = shots.filter(function(s){return s.status==='In Progress';}).length;
     var inReview = shots.filter(function(s){return s.status==='Review';}).length;
     var withLogs = shots.filter(function(s){return (DB.shotLogs[s.id]||[]).length>0;}).length;
-    var inh = getProjectInhouseCost(p.id);
-    var ost = getProjectOutsourceCost(p.id);
     var sc = projStatusColor(p.status);
     var months = getProjectMonthRange(p);
     var dl = daysLeft(p.deadline);
@@ -2982,12 +2978,10 @@ function renderDashProjectsGrid(){
       +   (withLogs?'<span class="badge badge-red"><i class="fas fa-comment-dots"></i> '+withLogs+' Feedback</span>':'')
       +   '<span class="badge badge-muted">'+prog.done+'/'+prog.total+' shots</span>'
       + '</div>'
-      // Stats row
-      + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">'
-      +   '<div style="text-align:center;background:var(--surface);border-radius:8px;padding:6px 4px;"><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">Hours</div><div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);">'+msToHM(totalMs)+'</div></div>'
-      +   '<div style="text-align:center;background:var(--surface);border-radius:8px;padding:6px 4px;"><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">In-house</div><div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--green);">'+fmtINR(inh)+'</div></div>'
+      // Stats row — deadline only
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">'
+      +   '<div style="text-align:center;background:var(--surface);border-radius:8px;padding:6px 4px;"><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">Shots Done</div><div style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--green);">'+prog.done+' / '+prog.total+'</div></div>'
       +   '<div style="text-align:center;background:var(--surface);border-radius:8px;padding:6px 4px;"><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">Deadline</div><div style="font-size:11px;font-weight:700;">'+dlStr+'</div></div>'
-      +   '<div style="text-align:center;background:var(--surface);border-radius:8px;padding:6px 4px;"><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">Budget</div><div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--yellow);">'+fmtINR(p.budget||0)+'</div></div>'
       + '</div>'
       + '</div>';
   }).join('') + '</div>';
@@ -3014,9 +3008,6 @@ function renderDashProjectDetail(pid){
   var shots = DB.shots.filter(function(s){return s.projectId===pid;});
   var prog = getProjectShotsDone(pid);
   var pct = prog.total>0?Math.round(prog.done/prog.total*100):0;
-  var totalMs = getProjectTotalMs(pid);
-  var inh = getProjectInhouseCost(pid);
-  var ost = getProjectOutsourceCost(pid);
   var sc = projStatusColor(p.status);
   var dl = daysLeft(p.deadline);
   var dlStr = dl===null?'—':dl<0?'<span style="color:var(--red);">'+Math.abs(dl)+'d overdue</span>':dl===0?'<span style="color:var(--yellow);">Due today</span>':'<span style="color:var(--green);">'+dl+'d left</span>';
@@ -3039,14 +3030,12 @@ function renderDashProjectDetail(pid){
     +   '</div>'
     +   '<span class="badge" style="background:rgba(0,0,0,0.2);color:'+sc+';border-color:'+sc+'40;font-size:12px;padding:4px 14px;">'+p.status+'</span>'
     + '</div>'
-    // Project stats
+    // Project stats — no money, no hours
     + '<div class="detail-meta-grid">'
     +   '<div class="detail-stat"><div class="lbl">Progress</div><div class="val blue" style="font-size:22px;">'+pct+'%</div><div style="font-size:11px;color:var(--muted);">'+prog.done+'/'+prog.total+' shots done</div></div>'
-    +   '<div class="detail-stat"><div class="lbl">Hours Logged</div><div class="val coord" style="font-size:22px;">'+msToHM(totalMs)+'</div></div>'
+    +   '<div class="detail-stat"><div class="lbl">Shots Total</div><div class="val muted" style="font-size:22px;">'+prog.total+'</div></div>'
+    +   '<div class="detail-stat"><div class="lbl">Completed</div><div class="val green" style="font-size:22px;">'+prog.done+'</div></div>'
     +   '<div class="detail-stat"><div class="lbl">Deadline</div><div style="font-size:16px;font-weight:700;margin-top:4px;">'+dlStr+'</div><div style="font-size:11px;color:var(--muted);">'+(p.deadline||'—')+'</div></div>'
-    +   '<div class="detail-stat"><div class="lbl">In-house Cost</div><div class="val green" style="font-size:18px;">'+fmtINR(inh)+'</div></div>'
-    +   '<div class="detail-stat"><div class="lbl">Outsource Cost</div><div class="val yellow" style="font-size:18px;">'+fmtINR(ost)+'</div></div>'
-    +   '<div class="detail-stat"><div class="lbl">Budget</div><div class="val yellow" style="font-size:18px;">'+fmtINR(p.budget||0)+'</div></div>'
     + '</div>'
     // Overall progress bar
     + '<div style="margin-bottom:20px;">'
@@ -3068,9 +3057,8 @@ function renderDashProjectDetail(pid){
     // Shots table (view-only)
     + '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin:0 0 12px;">Shots</div>'
     + '<div class="tbl-wrap">'
-    +   '<table><thead><tr><th>Shot</th><th>Task</th><th>Frames</th><th>Type</th><th>Status</th><th>Assigned To</th><th>Est.Hrs</th><th>Logged</th><th>ETA</th><th>Files</th><th>Feedback</th></tr></thead><tbody>'
+    +   '<table><thead><tr><th>Shot</th><th>Task</th><th>Frames</th><th>Type</th><th>Status</th><th>Assigned To</th><th>ETA</th><th>Files</th><th>Feedback</th></tr></thead><tbody>'
     + shots.map(function(shot){
-        var loggedMs = getShotTotalMs(shot.id);
         var assigned = DB.artists.filter(function(a){return a.shotIds&&a.shotIds.includes(shot.id);});
         var names = assigned.map(function(a){return '<span class="badge badge-purple">'+a.name+'</span>';}).join(' ') || '<span style="color:var(--muted);">—</span>';
         var sc2 = {'In Progress':'var(--accent)','Complete':'var(--green)','Review':'var(--yellow)','Not Started':'var(--muted)','Paused':'var(--accent2)'}[shot.status]||'var(--muted)';
@@ -3087,14 +3075,12 @@ function renderDashProjectDetail(pid){
           + '<td>'+typeTag+'</td>'
           + '<td><span style="color:'+sc2+';font-weight:700;font-size:12px;">'+shot.status+'</span></td>'
           + '<td>'+names+'</td>'
-          + '<td style="font-family:var(--mono);font-size:12px;color:var(--muted);">'+(shot.estHours?shot.estHours+'h':'—')+'</td>'
-          + '<td style="font-family:var(--mono);color:var(--coord);">'+(loggedMs>0?msToHM(loggedMs):'—')+'</td>'
           + '<td>'+eta+'</td>'
           + '<td>'+filesBadge+'</td>'
           + '<td>'+logsBadge+'</td>'
           + '</tr>'
           // Inline feedback rows
-          + '<tr id="dash-logs-'+shot.id+'" style="display:none;"><td colspan="11" style="padding:0;">'
+          + '<tr id="dash-logs-'+shot.id+'" style="display:none;"><td colspan="9" style="padding:0;">'
           + '<div style="background:rgba(255,68,68,0.04);border-left:3px solid var(--red);padding:12px 16px;">'
           + (logs.length ? logs.map(function(log){
               var ts = log.ts ? new Date(log.ts).toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
